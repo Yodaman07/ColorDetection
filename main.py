@@ -12,6 +12,9 @@ def ColorPicker(event, x: int, y: int, flags, img: numpy.ndarray):  # Callback
     global color
     if event == cv.EVENT_LBUTTONDOWN:
         pixel_color = img[y][x]  # BGR Color
+        # As x increases, the pixel moves to the right
+        # As y increases, the pixel moves down
+        # img[0][0] is the pixel in the top left most corner
         color = np.uint8([[pixel_color]])
         print(f"Updating color mask to match at ({x},{y})")
 
@@ -32,15 +35,17 @@ while True:
     hsvColor = cv.cvtColor(color, cv.COLOR_BGR2HSV)
     hue = hsvColor[0][0][0]
 
-    lower_bound = np.uint8([[[hue - 10, 50, 50]]])
-    upper_bound = np.uint8([[[hue + 10, 255, 255]]])
+    lower_bound = np.uint8([[[hue - 25, 50, 50]]])
+    upper_bound = np.uint8([[[hue + 25, 255, 255]]])
 
     mask = cv.inRange(frame, lower_bound, upper_bound)
 
     cv.setMouseCallback("stream", ColorPicker, param=frame)
+    res = cv.bitwise_and(frame, frame, mask=mask)
 
+    cv.imshow("mask", res)
     cv.imshow("stream", frame)
-    cv.imshow("mask", mask)
+
     # https://stackoverflow.com/questions/5217519/what-does-opencvs-cvwaitkey-function-do <-- how waitKey works
     if cv.waitKey(1) == ord("q"):  # gets the unicode value for q
         break
