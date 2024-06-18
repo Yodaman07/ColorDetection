@@ -1,5 +1,4 @@
 import cv2 as cv
-import numpy
 import numpy as np
 
 # basic camera code is copied from one of my previous projects https://github.com/Yodaman07/HandWrittenNumbers/blob/main/main.py
@@ -8,7 +7,7 @@ import numpy as np
 color = np.uint8([[[255, 0, 0]]])
 
 
-def ColorPicker(event, x: int, y: int, flags, img: numpy.ndarray):  # Callback
+def ColorPicker(event, x: int, y: int, flags, img: np.ndarray):  # Callback
     global color
     if event == cv.EVENT_LBUTTONDOWN:
         pixel_color = img[y][x]  # BGR Color
@@ -26,6 +25,7 @@ if not cam.isOpened():
     exit()
 
 while True:
+    # a = Adjuster()
     retrieved, frame = cam.read()
     if not retrieved:
         print("Stream has likely ended")
@@ -35,10 +35,12 @@ while True:
     hsvColor = cv.cvtColor(color, cv.COLOR_BGR2HSV)
     hue = hsvColor[0][0][0]
 
-    lower_bound = np.uint8([[[hue - 25, 50, 50]]])
-    upper_bound = np.uint8([[[hue + 25, 255, 255]]])
+    lower_bound = np.uint8([hue - 25, 50, 50])
+    upper_bound = np.uint8([hue + 25, 255, 255])
 
-    mask = cv.inRange(frame, lower_bound, upper_bound)
+    hsvFrame = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+
+    mask = cv.inRange(hsvFrame, lower_bound, upper_bound)
 
     cv.setMouseCallback("stream", ColorPicker, param=frame)
     res = cv.bitwise_and(frame, frame, mask=mask)
